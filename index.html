@@ -8,7 +8,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #FFF8E7; /* 아이보리 배경 */
+      background-color: #FFF8E7;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -17,8 +17,8 @@
     }
 
     .circle-container {
-      width: 60vw;   /* 가로 크기 조정 */
-      height: 80vh;  /* 세로 크기 크게 */
+      width: 60vw;
+      height: 80vh;
       background: white;
       border: 5px solid #FFF8E7;
       border-radius: 40% / 60%; /* 세로형 타원 */
@@ -31,18 +31,30 @@
       box-shadow: 0 0 20px rgba(0,0,0,0.2);
       position: relative;
       overflow: hidden;
-      background-size: cover;   /* 배경 이미지 꽉 채우기 */
+      background-size: cover;
       background-position: center;
     }
 
     h1 { color: #4B2E2E; }
 
+    /* 모바일에서 줄바꿈 */
+    @media (max-width: 600px) {
+      h1 {
+        white-space: pre-line; /* 줄바꿈 허용 */
+      }
+      .mobile-break::after {
+        content: "\A"; /* 강제 줄바꿈 */
+        white-space: pre;
+      }
+    }
+
     .floating {
       position: absolute;
-      width: 180px; /* 크기 키움 */
+      width: 180px;
       height: auto;
       animation: float 6s infinite ease-in-out;
-      cursor: grab; /* 드래그 가능 표시 */
+      cursor: grab;
+      touch-action: none; /* 모바일 터치 드래그 지원 */
     }
 
     @keyframes float {
@@ -72,7 +84,7 @@
 
 <body>
   <div class="circle-container">
-    <h1>내가 아는 모든 귀요미들</h1>
+    <h1><span class="mobile-break">내가 아는 모든</span> 귀요미들</h1>
     <p>귀여운 애들은 같이 보자</p>
 
     <div class="action-area">
@@ -83,14 +95,12 @@
 
   <script>
     function showDogs() {
-      const btn = document.getElementById("changeBtn");
-      const msg = document.getElementById("message");
       const container = document.querySelector(".circle-container");
 
       // 모든 텍스트 숨기기
       document.querySelectorAll("h1, p").forEach(el => el.style.display = "none");
 
-      // 원 안쪽 배경을 리띠.jpg로 변경
+      // 배경 변경
       container.style.backgroundImage = "url('imag/리띠.jpg')";
 
       // 이미지 파일 목록
@@ -104,7 +114,7 @@
         img.style.left = Math.random() * 60 + "%";
         img.style.animationDuration = (5 + index) + "s";
 
-        // 드래그 기능 추가
+        // PC 드래그
         img.onmousedown = function(e) {
           e.preventDefault();
           let shiftX = e.clientX - img.getBoundingClientRect().left;
@@ -127,7 +137,30 @@
           };
         };
 
-        img.ondragstart = () => false; // 기본 드래그 방지
+        // 모바일 터치 드래그
+        img.ontouchstart = function(e) {
+          let touch = e.touches[0];
+          let shiftX = touch.clientX - img.getBoundingClientRect().left;
+          let shiftY = touch.clientY - img.getBoundingClientRect().top;
+
+          function moveAt(touch) {
+            img.style.left = touch.clientX - container.offsetLeft - shiftX + "px";
+            img.style.top = touch.clientY - container.offsetTop - shiftY + "px";
+          }
+
+          function onTouchMove(e) {
+            moveAt(e.touches[0]);
+          }
+
+          document.addEventListener('touchmove', onTouchMove);
+
+          img.ontouchend = function() {
+            document.removeEventListener('touchmove', onTouchMove);
+            img.ontouchend = null;
+          };
+        };
+
+        img.ondragstart = () => false;
         container.appendChild(img);
       });
     }
