@@ -52,10 +52,12 @@
     .floating {
       position: absolute;
       width: 180px;
+      height: auto;
       cursor: grab;
       touch-action: none;
     }
 
+    /* 애니메이션 */
     @keyframes floatY {
       0% { transform: translateY(0); }
       50% { transform: translateY(-30px); }
@@ -89,15 +91,17 @@
       background-color: #E6D8B8;
       color: #4B2E2E;
       cursor: pointer;
-      position: relative;
       transition: all 0.4s ease;
     }
 
-    #changeBtn:hover { background-color: #DCCCA6; }
+    #changeBtn:hover {
+      background-color: #DCCCA6;
+    }
 
+    /* 클릭 후 버튼 위치 */
     .move-top {
       position: absolute;
-      top: 10px;
+      top: 12px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 10;
@@ -109,7 +113,6 @@
   <div class="circle-container">
     <h1 id="title"><span class="mobile-break">내가 아는 모든</span> 귀요미들</h1>
     <p id="subtitle">귀여운 애들은 같이 보자</p>
-
     <button id="changeBtn" onclick="showDogs()">눌러보세요</button>
   </div>
 
@@ -118,20 +121,20 @@
       const container = document.querySelector(".circle-container");
       const btn = document.getElementById("changeBtn");
 
-      // 제목 + 문구 숨기기
+      // 제목과 문구 숨기기
       document.getElementById("title").style.display = "none";
       document.getElementById("subtitle").style.display = "none";
 
       // 배경 변경
       container.style.backgroundImage = "url('imag/리띠.jpg')";
 
-      // 버튼을 타원 안 맨 위로 이동
+      // 버튼을 타원 안 맨 위 중앙으로
       btn.classList.add("move-top");
 
       const images = ["imag/댕댕.png", "imag/아지.png", "imag/뽀또.png"];
       const animations = ["floatY", "floatX", "floatRotate", "floatOrbit", "floatBounce"];
 
-      images.forEach(src => {
+      images.forEach((src, index) => {
         const img = document.createElement("img");
         img.src = src;
         img.className = "floating";
@@ -141,6 +144,46 @@
 
         const ani = animations[Math.floor(Math.random() * animations.length)];
         img.style.animation = `${ani} ${4 + Math.random() * 4}s infinite ease-in-out`;
+
+        // PC 드래그
+        img.onmousedown = function(e) {
+          e.preventDefault();
+          let shiftX = e.clientX - img.getBoundingClientRect().left;
+          let shiftY = e.clientY - img.getBoundingClientRect().top;
+
+          function moveAt(pageX, pageY) {
+            img.style.left = pageX - container.offsetLeft - shiftX + "px";
+            img.style.top = pageY - container.offsetTop - shiftY + "px";
+          }
+
+          function onMouseMove(e) { moveAt(e.pageX, e.pageY); }
+          document.addEventListener("mousemove", onMouseMove);
+
+          img.onmouseup = function() {
+            document.removeEventListener("mousemove", onMouseMove);
+            img.onmouseup = null;
+          };
+        };
+
+        // 모바일 터치 드래그
+        img.ontouchstart = function(e) {
+          let touch = e.touches[0];
+          let shiftX = touch.clientX - img.getBoundingClientRect().left;
+          let shiftY = touch.clientY - img.getBoundingClientRect().top;
+
+          function moveAt(t) {
+            img.style.left = t.clientX - container.offsetLeft - shiftX + "px";
+            img.style.top = t.clientY - container.offsetTop - shiftY + "px";
+          }
+
+          function onTouchMove(e) { moveAt(e.touches[0]); }
+          document.addEventListener("touchmove", onTouchMove, { passive: false });
+
+          img.ontouchend = function() {
+            document.removeEventListener("touchmove", onTouchMove);
+            img.ontouchend = null;
+          };
+        };
 
         img.ondragstart = () => false;
         container.appendChild(img);
