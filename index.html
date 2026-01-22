@@ -5,23 +5,35 @@
   <title>내가 아는 모든 귀요미들</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- 카톡/페북/트위터 등 미리보기용 OG 태그 -->
-  <meta property="og:title" content="내가 아는 모든 귀요미들">
-  <meta property="og:description" content="귀엽지 않습니까">
-  <meta property="og:image" content="https://raw.githubusercontent.com/xmicl/my-web/main/image/IMG_7591.jpg?v=2">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://xmicl.github.io/my-web/?v=2">
-
   <style>
     body {
       font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 20px;
       background-color: #f0f8ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh; /* 화면 전체 높이 */
+      margin: 0;
     }
+
+    .circle-container {
+      width: 80vw;
+      height: 80vh;
+      background: white;
+      border: 5px solid #3498db;
+      border-radius: 50% / 45%; /* 약간 타원형 */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    }
+
     h1 { color: #2c3e50; }
     img {
-      max-width: 90%;
+      max-width: 70%;
       height: auto;
       border-radius: 10px;
       margin-top: 10px;
@@ -46,14 +58,16 @@
 </head>
 
 <body>
-  <h1>내가 아는 모든 귀요미들</h1>
-  <p>귀여운 애들은 같이 보자</p>
+  <div class="circle-container">
+    <h1>내가 아는 모든 귀요미들</h1>
+    <p>귀여운 애들은 같이 보자</p>
 
-  <img id="previewImage" src="image/IMG_7591.jpg" alt="미리보기 사진">
+    <img id="previewImage" src="image/IMG_7591.jpg" alt="미리보기 사진">
 
-  <div class="action-area">
-    <button id="changeBtn" onclick="changeImage()">눌러보세요</button>
-    <p id="message">귀 엽 다</p>
+    <div class="action-area">
+      <button id="changeBtn" onclick="changeImage()">눌러보세요</button>
+      <p id="message">귀 엽 다</p>
+    </div>
   </div>
 
   <script>
@@ -62,14 +76,10 @@
       const btn = document.getElementById("changeBtn");
       const msg = document.getElementById("message");
 
-      // 이미지 교체
       img.src = "image/image_625325687.jpg";
       img.alt = "버튼 클릭 후 사진";
 
-      // 버튼 숨기기
       btn.style.display = "none";
-
-      // 텍스트 보이기 (버튼 있던 자리)
       msg.style.display = "block";
     }
 
@@ -88,4 +98,3 @@
   </script>
 </body>
 </html>
-
