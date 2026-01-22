@@ -29,17 +29,20 @@
       text-align: center;
       padding: 20px;
       box-shadow: 0 0 20px rgba(0,0,0,0.2);
-      position: relative; /* 내부에 떠다니는 이미지 배치 */
+      position: relative;
       overflow: hidden;
+      background-size: cover;   /* 배경 이미지 꽉 채우기 */
+      background-position: center;
     }
 
     h1 { color: #4B2E2E; }
 
     .floating {
       position: absolute;
-      width: 120px;
+      width: 180px; /* 크기 키움 */
       height: auto;
       animation: float 6s infinite ease-in-out;
+      cursor: grab; /* 드래그 가능 표시 */
     }
 
     @keyframes float {
@@ -88,6 +91,9 @@
       btn.style.display = "none";
       msg.style.display = "block";
 
+      // 원 안쪽 배경을 리띠.jpg로 변경
+      container.style.backgroundImage = "url('imag/리띠.jpg')";
+
       // 이미지 파일 목록
       const images = ["imag/댕댕.png", "imag/아지.jpg", "imag/뽀또.jpg"];
 
@@ -95,18 +101,37 @@
         const img = document.createElement("img");
         img.src = src;
         img.className = "floating";
-        // 위치를 랜덤하게 배치
         img.style.top = Math.random() * 60 + "%";
         img.style.left = Math.random() * 60 + "%";
-        // 애니메이션 속도 약간 다르게
         img.style.animationDuration = (5 + index) + "s";
+
+        // 드래그 기능 추가
+        img.onmousedown = function(e) {
+          e.preventDefault();
+          let shiftX = e.clientX - img.getBoundingClientRect().left;
+          let shiftY = e.clientY - img.getBoundingClientRect().top;
+
+          function moveAt(pageX, pageY) {
+            img.style.left = pageX - container.offsetLeft - shiftX + "px";
+            img.style.top = pageY - container.offsetTop - shiftY + "px";
+          }
+
+          function onMouseMove(e) {
+            moveAt(e.pageX, e.pageY);
+          }
+
+          document.addEventListener('mousemove', onMouseMove);
+
+          img.onmouseup = function() {
+            document.removeEventListener('mousemove', onMouseMove);
+            img.onmouseup = null;
+          };
+        };
+
+        img.ondragstart = () => false; // 기본 드래그 방지
         container.appendChild(img);
       });
     }
-
   </script>
 </body>
 </html>
-
-
-
