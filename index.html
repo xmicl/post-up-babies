@@ -5,6 +5,10 @@
   <title>내가 아는 모든 귀요미들</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <meta property="og:image" content="imag/귀.jpg">
+  <meta property="og:title" content="내가 아는 모든 귀요미들">
+  <meta property="og:description" content="귀여운 애들은 같이 보자">
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -37,11 +41,44 @@
 
     h1 { color: #4B2E2E; }
 
+    @media (max-width: 600px) {
+      h1 { white-space: pre-line; }
+      .mobile-break::after {
+        content: "\A";
+        white-space: pre;
+      }
+    }
+
     .floating {
       position: absolute;
       width: 180px;
       cursor: grab;
       touch-action: none;
+    }
+
+    @keyframes floatY {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-30px); }
+      100% { transform: translateY(0); }
+    }
+    @keyframes floatX {
+      0% { transform: translateX(0); }
+      50% { transform: translateX(30px); }
+      100% { transform: translateX(0); }
+    }
+    @keyframes floatRotate {
+      0% { transform: rotate(0deg); }
+      50% { transform: rotate(8deg); }
+      100% { transform: rotate(0deg); }
+    }
+    @keyframes floatOrbit {
+      0%   { transform: rotate(0deg) translateX(15px) rotate(0deg); }
+      50%  { transform: rotate(180deg) translateX(15px) rotate(-180deg); }
+      100% { transform: rotate(360deg) translateX(15px) rotate(-360deg); }
+    }
+    @keyframes floatBounce {
+      0%,100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-20px) scale(1.05); }
     }
 
     #changeBtn {
@@ -55,6 +92,10 @@
       transition: all 0.4s ease;
     }
 
+    #changeBtn:hover {
+      background-color: #DCCCA6;
+    }
+
     .move-top {
       position: absolute;
       top: 12px;
@@ -62,30 +103,12 @@
       transform: translateX(-50%);
       z-index: 10;
     }
-
-    /* 툴팁 스타일 (노란 계열 + 줄바꿈) */
-    .tooltip {
-      position: absolute;
-      background: rgba(255, 223, 128, 0.95);
-      color: #4B2E2E;
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-size: 0.9em;
-      pointer-events: none;
-      z-index: 20;
-      display: none;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-
-      white-space: normal;  /* 줄바꿈 허용 */
-      max-width: 180px;     /* 박스 너비 제한 */
-      line-height: 1.4;     /* 줄 간격 */
-    }
   </style>
 </head>
 
 <body>
   <div class="circle-container">
-    <h1 id="title">내가 아는 모든 귀요미들</h1>
+    <h1 id="title"><span class="mobile-break">내가 아는 모든</span> 귀요미들</h1>
     <p id="subtitle">귀여운 애들은 같이 보자</p>
     <button id="changeBtn" onclick="showDogs()">눌러보세요</button>
   </div>
@@ -95,40 +118,75 @@
       const container = document.querySelector(".circle-container");
       const btn = document.getElementById("changeBtn");
 
+      // 제목 + 문구 숨기기
       document.getElementById("title").style.display = "none";
       document.getElementById("subtitle").style.display = "none";
+
+      // 배경 변경
       container.style.backgroundImage = "url('imag/리띠.jpg')";
+
+      // 버튼 위로 이동
       btn.classList.add("move-top");
 
-      const tooltip = document.createElement("div");
-      tooltip.className = "tooltip";
-      container.appendChild(tooltip);
+      const images = ["imag/댕댕.png","imag/아지.png","imag/뽀또.png"];
+      const animations = ["floatY","floatX","floatRotate","floatOrbit","floatBounce"];
 
-      const images = [
-        {src: "imag/댕댕.png", info: "댕댕\n귀요미\n깜찌기"},
-        {src: "imag/아지.png", info: "아지\n차카니\n예뽀니"},
-        {src: "imag/뽀또.png", info: "뽀또\n꼬수미\n순딩이"}
-      ];
-
-      images.forEach(item => {
+      images.forEach(src => {
         const img = document.createElement("img");
-        img.src = item.src;
+        img.src = src;
         img.className = "floating";
 
-        img.style.left = Math.random() * (container.clientWidth - 180) + "px";
-        img.style.top = Math.random() * (container.clientHeight - 180) + "px";
+        // 화면 안 랜덤 위치
+        const maxX = container.clientWidth - 180;
+        const maxY = container.clientHeight - 180;
+        img.style.left = Math.random() * maxX + "px";
+        img.style.top = Math.random() * maxY + "px";
 
-        img.addEventListener("mouseenter", () => {
-          tooltip.textContent = item.info;
-          tooltip.style.display = "block";
-        });
-        img.addEventListener("mousemove", (e) => {
-          tooltip.style.left = e.pageX + 10 + "px";
-          tooltip.style.top = e.pageY + 10 + "px";
-        });
-        img.addEventListener("mouseleave", () => {
-          tooltip.style.display = "none";
-        });
+        // 랜덤 애니메이션
+        const ani = animations[Math.floor(Math.random() * animations.length)];
+        img.style.animation = `${ani} ${4 + Math.random()*4}s infinite ease-in-out`;
+
+        // PC 드래그
+        img.onmousedown = function(e) {
+          e.preventDefault();
+          let shiftX = e.clientX - img.getBoundingClientRect().left;
+          let shiftY = e.clientY - img.getBoundingClientRect().top;
+
+          function moveAt(pageX, pageY) {
+            img.style.left = pageX - container.getBoundingClientRect().left - shiftX + "px";
+            img.style.top = pageY - container.getBoundingClientRect().top - shiftY + "px";
+          }
+
+          function onMouseMove(e) { moveAt(e.pageX, e.pageY); }
+          document.addEventListener("mousemove", onMouseMove);
+
+          img.onmouseup = function() {
+            document.removeEventListener("mousemove", onMouseMove);
+            img.onmouseup = null;
+          };
+        };
+
+        // 모바일 터치 드래그
+        img.ontouchstart = function(e) {
+          let touch = e.touches[0];
+          let shiftX = touch.clientX - img.getBoundingClientRect().left;
+          let shiftY = touch.clientY - img.getBoundingClientRect().top;
+
+          function moveAt(t) {
+            img.style.left = t.clientX - container.getBoundingClientRect().left - shiftX + "px";
+            img.style.top = t.clientY - container.getBoundingClientRect().top - shiftY + "px";
+          }
+
+          function onTouchMove(e) { moveAt(e.touches[0]); }
+          document.addEventListener("touchmove", onTouchMove, { passive: false });
+
+          img.ontouchend = function() {
+            document.removeEventListener("touchmove", onTouchMove);
+            img.ontouchend = null;
+          };
+        };
+
+        img.ondragstart = () => false;
 
         container.appendChild(img);
       });
@@ -136,4 +194,3 @@
   </script>
 </body>
 </html>
-
