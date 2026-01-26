@@ -40,6 +40,7 @@
     }
 
     h1 { color: #4B2E2E; }
+    .hidden { display: none; }
 
     @media (max-width: 600px) {
       h1 { white-space: pre-line; }
@@ -92,14 +93,13 @@
       clicks: 0,
       score: 0,
       ended: false,
-      touches: 0,
-      input: ""
+      touches: 0
     };
 
     const images = ["imag/댕댕.png","imag/아지.png","imag/뽀또.png"];
     const animations = ["floatY","floatX","floatRotate","floatOrbit","floatBounce"];
 
-    // 이미지 추가
+    // 기본 게임
     function showDogs() {
       gameState.clicks++;
       const container = document.querySelector(".circle-container");
@@ -124,7 +124,7 @@
           const ani = animations[Math.floor(Math.random() * animations.length)];
           img.style.animation = `${ani} ${4 + Math.random()*4}s infinite ease-in-out`;
 
-          // pointer 이벤트로 PC/모바일 통합 드래그
+          // pointer 이벤트로 드래그 통합
           img.addEventListener("pointerdown", e => {
             e.preventDefault();
             const shiftX = e.clientX - img.getBoundingClientRect().left;
@@ -148,7 +148,7 @@
       }
     }
 
-    // 치트 코드 입력 감지 (input 요소 활용)
+    // 숨겨진 input (치트 코드 입력용)
     const cheatInput = document.createElement("input");
     cheatInput.type = "text";
     cheatInput.id = "cheatInput";
@@ -182,11 +182,14 @@
           const img = document.createElement("img");
           img.src = src;
           img.className = "floating";
+
           const maxX = container.clientWidth - 180;
           const maxY = container.clientHeight - 180;
           img.style.left = Math.random() * maxX + "px";
           img.style.top = Math.random() * maxY + "px";
-          img.style.animation = `floatY ${4 + Math.random()*4}s infinite ease-in-out`;
+
+          const ani = animations[Math.floor(Math.random() * animations.length)];
+          img.style.animation = `${ani} ${4 + Math.random()*4}s infinite ease-in-out`;
 
           img.onclick = () => {
             gameState.score++;
@@ -198,14 +201,14 @@
         });
       }
 
-      // 리띠 (멈춘 이미지 → 탈락 처리)
+            // 리띠 (멈춘 이미지 → 탈락 처리)
       const litti = document.createElement("img");
       litti.src = "imag/리띠.jpg";
       litti.className = "floating";
       litti.style.left = "50%";
       litti.style.top = "50%";
       litti.style.transform = "translate(-50%, -50%)";
-      litti.style.animation = "none";
+      litti.style.animation = "none"; // 움직이지 않음
 
       litti.onclick = () => {
         flashMessage("탈락!");
@@ -261,7 +264,3 @@
   </script>
 </body>
 </html>
-
-
-
-
