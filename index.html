@@ -91,6 +91,7 @@
     let buttonClickCount = 0;
     let outsideTouchCount = 0;
     let input = "";
+    let gameEnded = false; // 게임 종료 상태 체크
 
     // 원본 게임
     function showDogs() {
@@ -176,6 +177,7 @@
       container.innerHTML = `<p>점수: <span id="score">0</span></p>`;
       flashMessage("치트 게임 시작!");
       let score = 0;
+      gameEnded = false;
 
       const movingImages = ["imag/댕댕.png","imag/아지.png","imag/뽀또.png"];
       for (let i = 0; i < buttonClickCount; i++) {
@@ -212,6 +214,7 @@
         flashMessage("탈락!");
         setTimeout(() => {
           container.innerHTML = "<p>게임 종료</p>";
+          gameEnded = true;
         }, 1000);
       };
 
@@ -237,16 +240,23 @@
         <button id="changeBtn" onclick="showDogs()">눌러보세요</button>
       `;
       buttonClickCount = 0;
+      gameEnded = false;
     }
 
-    // 모바일: 원 밖 두 번 터치 → 첫 화면 복귀
+    // 모바일: 원 밖 터치 규칙
     document.addEventListener("touchstart", (e) => {
       const container = document.querySelector(".circle-container");
       if (!container.contains(e.target)) {
-        outsideTouchCount++;
-        if (outsideTouchCount >= 2) {
+        if (gameEnded) {
+          // 게임 종료 후 → 두 번 터치해야 복귀
+          outsideTouchCount++;
+          if (outsideTouchCount >= 2) {
+            goToFirstPage();
+            outsideTouchCount = 0;
+          }
+        } else {
+          // 게임 중 → 한 번 터치로 복귀
           goToFirstPage();
-          outsideTouchCount = 0;
         }
       } else {
         outsideTouchCount = 0;
