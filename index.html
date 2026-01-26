@@ -3,113 +3,196 @@
 <head>
   <meta charset="UTF-8">
   <title>내가 아는 모든 귀요미들</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta property="og:image" content="imag/귀.jpg">
+  <meta property="og:title" content="내가 아는 모든 귀요미들">
+  <meta property="og:description" content="귀여운 애들은 같이 보자">
+
   <style>
     body {
-      text-align: center;
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
+      background-color: #FFF8E7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
     }
+
     .circle-container {
+      width: 60vw;
+      height: 80vh;
+      background: white;
+      border: 5px solid #FFF8E7;
+      border-radius: 40% / 60%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
       position: relative;
-      margin: 20px auto;
-      width: 500px;
-      height: 500px;
-      border-radius: 50%;
-      border: 3px solid #333;
       overflow: hidden;
+      background-size: cover;
+      background-position: center;
     }
-    img {
+
+    h1 { color: #4B2E2E; }
+
+    @media (max-width: 600px) {
+      h1 { white-space: pre-line; }
+      .mobile-break::after {
+        content: "\A";
+        white-space: pre;
+      }
+    }
+
+    .floating {
+      position: absolute;
+      width: 180px;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    @keyframes floatY { 0%{transform:translateY(0);}50%{transform:translateY(-30px);}100%{transform:translateY(0);} }
+    @keyframes floatX { 0%{transform:translateX(0);}50%{transform:translateX(30px);}100%{transform:translateX(0);} }
+    @keyframes floatRotate { 0%{transform:rotate(0deg);}50%{transform:rotate(8deg);}100%{transform:rotate(0deg);} }
+    @keyframes floatOrbit { 0%{transform:rotate(0deg) translateX(15px) rotate(0deg);}50%{transform:rotate(180deg) translateX(15px) rotate(-180deg);}100%{transform:rotate(360deg) translateX(15px) rotate(-360deg);} }
+    @keyframes floatBounce { 0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-20px) scale(1.05);} }
+
+    #changeBtn {
+      padding: 12px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      background-color: #E6D8B8;
+      color: #4B2E2E;
       cursor: pointer;
+      transition: all 0.4s ease;
     }
-    .flash {
-      animation: flash 1s ease;
-      font-size: 2em;
-      color: red;
-      font-weight: bold;
-    }
-    @keyframes flash {
-      0% { opacity: 1; }
-      50% { opacity: 0; }
-      100% { opacity: 1; }
-    }
+    #changeBtn:hover { background-color: #DCCCA6; }
+    .move-top { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 10; }
+
+    .flash { animation: flash 1s ease; font-size: 2em; color: red; font-weight: bold; }
+    @keyframes flash { 0%{opacity:1;}50%{opacity:0;}100%{opacity:1;} }
   </style>
 </head>
-<body>
-  <h1><span class="mobile-break">내가 아는 모든</span> 귀요미들</h1>
-  <p>귀여운 애들은 같이 보자</p>
-  <button id="startBtn" onclick="showDogs()">눌러보세요</button>
 
-  <div class="circle-container"></div>
+<body>
+  <div class="circle-container">
+    <h1 id="title"><span class="mobile-break">내가 아는 모든</span> 귀요미들</h1>
+    <p id="subtitle">귀여운 애들은 같이 보자</p>
+    <button id="changeBtn" onclick="showDogs()">눌러보세요</button>
+  </div>
 
   <script>
-    let buttonClickCount = 0; // 버튼 누른 횟수 기록
-    let outsideTouchCount = 0; // 모바일 원 밖 터치 횟수 기록
-    let input = ""; // 치트 코드 입력 기록
+    let buttonClickCount = 0;
+    let outsideTouchCount = 0;
+    let input = "";
 
-    // 원본 게임: 버튼 누르면 뽀또, 아지, 댕댕만 누적
+    // 원본 게임
     function showDogs() {
       buttonClickCount++;
       const container = document.querySelector(".circle-container");
+      const btn = document.getElementById("changeBtn");
 
-      const images = ["imag/뽀또.png","imag/아지.png","imag/댕댕.png"];
+      document.getElementById("title").style.display = "none";
+      document.getElementById("subtitle").style.display = "none";
+      container.style.backgroundImage = "url('imag/리띠.jpg')";
+      btn.classList.add("move-top");
+
+      const images = ["imag/댕댕.png","imag/아지.png","imag/뽀또.png"];
+      const animations = ["floatY","floatX","floatRotate","floatOrbit","floatBounce"];
 
       for (let i = 0; i < buttonClickCount; i++) {
         images.forEach(src => {
           const img = document.createElement("img");
           img.src = src;
-          img.style.position = "absolute";
-          img.style.width = "120px";
-          moveRandom(img, container);
+          img.className = "floating";
+
+          const maxX = container.clientWidth - 180;
+          const maxY = container.clientHeight - 180;
+          img.style.left = Math.random() * maxX + "px";
+          img.style.top = Math.random() * maxY + "px";
+
+          const ani = animations[Math.floor(Math.random() * animations.length)];
+          img.style.animation = `${ani} ${4 + Math.random()*4}s infinite ease-in-out`;
+
+          // PC 드래그
+          img.onmousedown = function(e) {
+            e.preventDefault();
+            let shiftX = e.clientX - img.getBoundingClientRect().left;
+            let shiftY = e.clientY - img.getBoundingClientRect().top;
+            function moveAt(pageX, pageY) {
+              img.style.left = pageX - container.getBoundingClientRect().left - shiftX + "px";
+              img.style.top = pageY - container.getBoundingClientRect().top - shiftY + "px";
+            }
+            function onMouseMove(e) { moveAt(e.pageX, e.pageY); }
+            document.addEventListener("mousemove", onMouseMove);
+            img.onmouseup = function() {
+              document.removeEventListener("mousemove", onMouseMove);
+              img.onmouseup = null;
+            };
+          };
+
+          // 모바일 터치 드래그
+          img.ontouchstart = function(e) {
+            let touch = e.touches[0];
+            let shiftX = touch.clientX - img.getBoundingClientRect().left;
+            let shiftY = touch.clientY - img.getBoundingClientRect().top;
+            function moveAt(t) {
+              img.style.left = t.clientX - container.getBoundingClientRect().left - shiftX + "px";
+              img.style.top = t.clientY - container.getBoundingClientRect().top - shiftY + "px";
+            }
+            function onTouchMove(e) { moveAt(e.touches[0]); }
+            document.addEventListener("touchmove", onTouchMove, { passive: false });
+            img.ontouchend = function() {
+              document.removeEventListener("touchmove", onTouchMove);
+              img.ontouchend = null;
+            };
+          };
+
+          img.ondragstart = () => false;
           container.appendChild(img);
         });
       }
     }
-
-    // 치트 코드 입력 감지
+        // 치트 코드 입력 감지
     document.addEventListener("keydown", (e) => {
       input += e.key;
-
-      if (
-        input.includes("리띠") ||
-        input.includes("아지") ||
-        input.includes("댕댕") ||
-        input.includes("뽀또")
-      ) {
+      if (input.includes("리띠") || input.includes("아지") || input.includes("댕댕") || input.includes("뽀또")) {
         startCheatGame();
         input = "";
       }
-
-      if (input.length > 30) {
-        input = input.slice(-30);
-      }
-
-      // ESC 키 → 첫 화면 복귀
-      if (e.key === "Escape") {
-        goToFirstPage();
-      }
+      if (input.length > 30) input = input.slice(-30);
+      if (e.key === "Escape") goToFirstPage();
     });
 
-    // 치트 게임 시작
+    // 치트 게임
     function startCheatGame() {
       const container = document.querySelector(".circle-container");
       container.innerHTML = `<p>점수: <span id="score">0</span></p>`;
       flashMessage("치트 게임 시작!");
       let score = 0;
 
-      const movingImages = ["imag/뽀또.png","imag/아지.png","imag/댕댕.png"];
+      const movingImages = ["imag/댕댕.png","imag/아지.png","imag/뽀또.png"];
       for (let i = 0; i < buttonClickCount; i++) {
         movingImages.forEach(src => {
           const img = document.createElement("img");
           img.src = src;
-          img.style.position = "absolute";
-          img.style.width = "100px";
-          moveRandom(img, container);
+          img.className = "floating";
+          const maxX = container.clientWidth - 180;
+          const maxY = container.clientHeight - 180;
+          img.style.left = Math.random() * maxX + "px";
+          img.style.top = Math.random() * maxY + "px";
+          img.style.animation = `floatY ${4 + Math.random()*4}s infinite ease-in-out`;
 
           img.onclick = () => {
             score++;
             document.getElementById("score").textContent = score;
-            if(score >= 10) {
-              alert("🎉 귀요미 마스터!");
-            }
+            if(score >= 10) alert("🎉 귀요미 마스터!");
           };
 
           container.appendChild(img);
@@ -119,11 +202,11 @@
       // 리띠 (멈춘 이미지 → 탈락 처리)
       const litti = document.createElement("img");
       litti.src = "imag/리띠.jpg";
-      litti.style.position = "absolute";
-      litti.style.width = "120px";
+      litti.className = "floating";
       litti.style.left = "50%";
       litti.style.top = "50%";
       litti.style.transform = "translate(-50%, -50%)";
+      litti.style.animation = "none"; // 움직이지 않음
 
       litti.onclick = () => {
         flashMessage("탈락!");
@@ -133,16 +216,6 @@
       };
 
       container.appendChild(litti);
-    }
-
-    // 랜덤 이동
-    function moveRandom(img, container) {
-      setInterval(() => {
-        const maxX = container.clientWidth - 120;
-        const maxY = container.clientHeight - 120;
-        img.style.left = Math.random() * maxX + "px";
-        img.style.top = Math.random() * maxY + "px";
-      }, 500);
     }
 
     // 메시지 번쩍 효과
@@ -159,17 +232,16 @@
     function goToFirstPage() {
       const container = document.querySelector(".circle-container");
       container.innerHTML = `
-        <h1><span class="mobile-break">내가 아는 모든</span> 귀요미들</h1>
-        <p>귀여운 애들은 같이 보자</p>
-        <button id="startBtn" onclick="showDogs()">눌러보세요</button>
+        <h1 id="title"><span class="mobile-break">내가 아는 모든</span> 귀요미들</h1>
+        <p id="subtitle">귀여운 애들은 같이 보자</p>
+        <button id="changeBtn" onclick="showDogs()">눌러보세요</button>
       `;
-      buttonClickCount = 0; // 초기화
+      buttonClickCount = 0;
     }
 
     // 모바일: 원 밖 두 번 터치 → 첫 화면 복귀
     document.addEventListener("touchstart", (e) => {
       const container = document.querySelector(".circle-container");
-
       if (!container.contains(e.target)) {
         outsideTouchCount++;
         if (outsideTouchCount >= 2) {
