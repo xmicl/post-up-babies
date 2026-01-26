@@ -244,24 +244,29 @@
     }
 
     // 모바일: 원 밖 터치 규칙
-    document.addEventListener("touchstart", (e) => {
-      const container = document.querySelector(".circle-container");
-      if (!container.contains(e.target)) {
-        if (gameEnded) {
-          // 게임 종료 후 → 두 번 터치해야 복귀
-          outsideTouchCount++;
-          if (outsideTouchCount >= 2) {
-            goToFirstPage();
-            outsideTouchCount = 0;
-          }
-        } else {
-          // 게임 중 → 한 번 터치로 복귀
-          goToFirstPage();
-        }
-      } else {
+document.addEventListener("touchstart", (e) => {
+  const container = document.querySelector(".circle-container");
+  if (!container.contains(e.target)) {
+    if (gameEnded) {
+      // 게임 종료 후 → 두 번 터치해야 복귀
+      outsideTouchCount++;
+      if (outsideTouchCount >= 2) {
+        goToFirstPage();
         outsideTouchCount = 0;
       }
-    });
+    } else {
+      // 게임 중 → 한 번 터치하면 입력 박스 생성 + 포커스
+      const inputBox = document.createElement("input");
+      inputBox.type = "text";
+      inputBox.placeholder = "치트 코드 입력...";
+      document.body.appendChild(inputBox);
+      inputBox.focus(); // 모바일 키보드 자동 호출
+    }
+  } else {
+    outsideTouchCount = 0;
+  }
+});
   </script>
 </body>
 </html>
+
