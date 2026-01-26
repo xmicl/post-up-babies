@@ -40,7 +40,6 @@
     }
 
     h1 { color: #4B2E2E; }
-    .hidden { display: none; }
 
     @media (max-width: 600px) {
       h1 { white-space: pre-line; }
@@ -57,11 +56,30 @@
       touch-action: none;
     }
 
-    @keyframes floatY { 0%{transform:translateY(0);}50%{transform:translateY(-30px);}100%{transform:translateY(0);} }
-    @keyframes floatX { 0%{transform:translateX(0);}50%{transform:translateX(30px);}100%{transform:translateX(0);} }
-    @keyframes floatRotate { 0%{transform:rotate(0deg);}50%{transform:rotate(8deg);}100%{transform:rotate(0deg);} }
-    @keyframes floatOrbit { 0%{transform:rotate(0deg) translateX(15px) rotate(0deg);}50%{transform:rotate(180deg) translateX(15px) rotate(-180deg);}100%{transform:rotate(360deg) translateX(15px) rotate(-360deg);} }
-    @keyframes floatBounce { 0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-20px) scale(1.05);} }
+    @keyframes floatY {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-30px); }
+      100% { transform: translateY(0); }
+    }
+    @keyframes floatX {
+      0% { transform: translateX(0); }
+      50% { transform: translateX(30px); }
+      100% { transform: translateX(0); }
+    }
+    @keyframes floatRotate {
+      0% { transform: rotate(0deg); }
+      50% { transform: rotate(8deg); }
+      100% { transform: rotate(0deg); }
+    }
+    @keyframes floatOrbit {
+      0%   { transform: rotate(0deg) translateX(15px) rotate(0deg); }
+      50%  { transform: rotate(180deg) translateX(15px) rotate(-180deg); }
+      100% { transform: rotate(360deg) translateX(15px) rotate(-360deg); }
+    }
+    @keyframes floatBounce {
+      0%,100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-20px) scale(1.05); }
+    }
 
     #changeBtn {
       padding: 12px 20px;
@@ -73,11 +91,18 @@
       cursor: pointer;
       transition: all 0.4s ease;
     }
-    #changeBtn:hover { background-color: #DCCCA6; }
-    .move-top { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 10; }
 
-    .flash { animation: flash 1s ease; font-size: 2em; color: red; font-weight: bold; }
-    @keyframes flash { 0%{opacity:1;}50%{opacity:0;}100%{opacity:1;} }
+    #changeBtn:hover {
+      background-color: #DCCCA6;
+    }
+
+    .move-top {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+    }
   </style>
 </head>
 
@@ -89,178 +114,83 @@
   </div>
 
   <script>
-    const gameState = {
-      clicks: 0,
-      score: 0,
-      ended: false,
-      touches: 0
-    };
-
-    const images = ["imag/댕댕.png","imag/아지.png","imag/뽀또.png"];
-    const animations = ["floatY","floatX","floatRotate","floatOrbit","floatBounce"];
-
-    // 기본 게임
     function showDogs() {
-      gameState.clicks++;
       const container = document.querySelector(".circle-container");
       const btn = document.getElementById("changeBtn");
 
-      document.getElementById("title").classList.add("hidden");
-      document.getElementById("subtitle").classList.add("hidden");
+      // 제목 + 문구 숨기기
+      document.getElementById("title").style.display = "none";
+      document.getElementById("subtitle").style.display = "none";
+
+      // 배경 변경
       container.style.backgroundImage = "url('imag/리띠.jpg')";
+
+      // 버튼 위로 이동
       btn.classList.add("move-top");
 
-      for (let i = 0; i < gameState.clicks; i++) {
-        images.forEach(src => {
-          const img = document.createElement("img");
-          img.src = src;
-          img.className = "floating";
+      const images = ["imag/댕댕.png","imag/아지.png","imag/뽀또.png"];
+      const animations = ["floatY","floatX","floatRotate","floatOrbit","floatBounce"];
 
-          const maxX = container.clientWidth - 180;
-          const maxY = container.clientHeight - 180;
-          img.style.left = Math.random() * maxX + "px";
-          img.style.top = Math.random() * maxY + "px";
+      images.forEach(src => {
+        const img = document.createElement("img");
+        img.src = src;
+        img.className = "floating";
 
-          const ani = animations[Math.floor(Math.random() * animations.length)];
-          img.style.animation = `${ani} ${4 + Math.random()*4}s infinite ease-in-out`;
+        // 화면 안 랜덤 위치
+        const maxX = container.clientWidth - 180;
+        const maxY = container.clientHeight - 180;
+        img.style.left = Math.random() * maxX + "px";
+        img.style.top = Math.random() * maxY + "px";
 
-          // pointer 이벤트로 드래그 통합
-          img.addEventListener("pointerdown", e => {
-            e.preventDefault();
-            const shiftX = e.clientX - img.getBoundingClientRect().left;
-            const shiftY = e.clientY - img.getBoundingClientRect().top;
+        // 랜덤 애니메이션
+        const ani = animations[Math.floor(Math.random() * animations.length)];
+        img.style.animation = `${ani} ${4 + Math.random()*4}s infinite ease-in-out`;
 
-            function moveAt(ev) {
-              img.style.left = ev.clientX - container.getBoundingClientRect().left - shiftX + "px";
-              img.style.top = ev.clientY - container.getBoundingClientRect().top - shiftY + "px";
-            }
+        // PC 드래그
+        img.onmousedown = function(e) {
+          e.preventDefault();
+          let shiftX = e.clientX - img.getBoundingClientRect().left;
+          let shiftY = e.clientY - img.getBoundingClientRect().top;
 
-            function onMove(ev) { moveAt(ev); }
-            document.addEventListener("pointermove", onMove);
-            document.addEventListener("pointerup", () => {
-              document.removeEventListener("pointermove", onMove);
-            }, { once: true });
-          });
-
-          img.ondragstart = () => false;
-          container.appendChild(img);
-        });
-      }
-    }
-
-    // 숨겨진 input (치트 코드 입력용)
-    const cheatInput = document.createElement("input");
-    cheatInput.type = "text";
-    cheatInput.id = "cheatInput";
-    cheatInput.style.opacity = "0";
-    cheatInput.style.position = "absolute";
-    cheatInput.style.left = "-9999px";
-    document.body.appendChild(cheatInput);
-
-    cheatInput.addEventListener("input", () => {
-      const val = cheatInput.value;
-      if (val.includes("리띠") || val.includes("아지") || val.includes("댕댕") || val.includes("뽀또")) {
-        startCheatGame();
-        cheatInput.value = "";
-      }
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") goToFirstPage();
-    });
-
-    // 치트 게임
-    function startCheatGame() {
-      const container = document.querySelector(".circle-container");
-      container.innerHTML = `<p>점수: <span id="score">0</span></p>`;
-      flashMessage("치트 게임 시작!");
-      gameState.score = 0;
-      gameState.ended = false;
-
-      for (let i = 0; i < gameState.clicks; i++) {
-        images.forEach(src => {
-          const img = document.createElement("img");
-          img.src = src;
-          img.className = "floating";
-
-          const maxX = container.clientWidth - 180;
-          const maxY = container.clientHeight - 180;
-          img.style.left = Math.random() * maxX + "px";
-          img.style.top = Math.random() * maxY + "px";
-
-          const ani = animations[Math.floor(Math.random() * animations.length)];
-          img.style.animation = `${ani} ${4 + Math.random()*4}s infinite ease-in-out`;
-
-          img.onclick = () => {
-            gameState.score++;
-            document.getElementById("score").textContent = gameState.score;
-            if(gameState.score >= 10) flashMessage("🎉 귀요미 마스터!");
-          };
-
-          container.appendChild(img);
-        });
-      }
-
-            // 리띠 (멈춘 이미지 → 탈락 처리)
-      const litti = document.createElement("img");
-      litti.src = "imag/리띠.jpg";
-      litti.className = "floating";
-      litti.style.left = "50%";
-      litti.style.top = "50%";
-      litti.style.transform = "translate(-50%, -50%)";
-      litti.style.animation = "none"; // 움직이지 않음
-
-      litti.onclick = () => {
-        flashMessage("탈락!");
-        setTimeout(() => {
-          container.innerHTML = "<p>게임 종료</p>";
-          gameState.ended = true;
-        }, 1000);
-      };
-
-      container.appendChild(litti);
-    }
-
-    // 메시지 번쩍 효과
-    function flashMessage(text) {
-      const container = document.querySelector(".circle-container");
-      const msg = document.createElement("div");
-      msg.textContent = text;
-      msg.className = "flash";
-      container.appendChild(msg);
-      setTimeout(() => msg.remove(), 1000);
-    }
-
-    // 첫 화면 복귀
-    function goToFirstPage() {
-      const container = document.querySelector(".circle-container");
-      container.innerHTML = `
-        <h1 id="title"><span class="mobile-break">내가 아는 모든</span> 귀요미들</h1>
-        <p id="subtitle">귀여운 애들은 같이 보자</p>
-        <button id="changeBtn" onclick="showDogs()">눌러보세요</button>
-      `;
-      gameState.clicks = 0;
-      gameState.ended = false;
-      gameState.score = 0;
-    }
-
-    // 모바일: 원 밖 터치 규칙
-    document.addEventListener("touchstart", (e) => {
-      const container = document.querySelector(".circle-container");
-      if (!container.contains(e.target)) {
-        if (gameState.ended) {
-          gameState.touches++;
-          if (gameState.touches >= 2) {
-            goToFirstPage();
-            gameState.touches = 0;
+          function moveAt(pageX, pageY) {
+            img.style.left = pageX - container.getBoundingClientRect().left - shiftX + "px";
+            img.style.top = pageY - container.getBoundingClientRect().top - shiftY + "px";
           }
-        } else {
-          cheatInput.focus(); // 숨겨진 input 재사용
-        }
-      } else {
-        gameState.touches = 0;
-      }
-    });
+
+          function onMouseMove(e) { moveAt(e.pageX, e.pageY); }
+          document.addEventListener("mousemove", onMouseMove);
+
+          img.onmouseup = function() {
+            document.removeEventListener("mousemove", onMouseMove);
+            img.onmouseup = null;
+          };
+        };
+
+        // 모바일 터치 드래그
+        img.ontouchstart = function(e) {
+          let touch = e.touches[0];
+          let shiftX = touch.clientX - img.getBoundingClientRect().left;
+          let shiftY = touch.clientY - img.getBoundingClientRect().top;
+
+          function moveAt(t) {
+            img.style.left = t.clientX - container.getBoundingClientRect().left - shiftX + "px";
+            img.style.top = t.clientY - container.getBoundingClientRect().top - shiftY + "px";
+          }
+
+          function onTouchMove(e) { moveAt(e.touches[0]); }
+          document.addEventListener("touchmove", onTouchMove, { passive: false });
+
+          img.ontouchend = function() {
+            document.removeEventListener("touchmove", onTouchMove);
+            img.ontouchend = null;
+          };
+        };
+
+        img.ondragstart = () => false;
+
+        container.appendChild(img);
+      });
+    }
   </script>
 </body>
 </html>
